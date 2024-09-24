@@ -1,4 +1,50 @@
-<!-- icons/refresh.svg -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-  <path fill="#ffffff" d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.63-.66 3.12-1.73 4.19l1.42 1.42A7.932 7.932 0 0020 12c0-4.42-3.58-8-8-8zm-6.27 1.73l-1.42-1.42A7.932 7.932 0 004 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3c-3.31 0-6-2.69-6-6 0-1.63.66-3.12 1.73-4.19z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <!-- Gradient Definitions -->
+  <defs>
+    <linearGradient id="refreshGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#E0E0E0"/>
+    </linearGradient>
+    <!-- Subtle Glow Effect -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="0" stdDeviation="2" flood-color="#FFFFFF55"/>
+    </filter>
+  </defs>
+  
+  <!-- Rotating Arrows -->
+  <g filter="url(#glow)" transform="rotate(-45 24 24)">
+    <path
+      fill="url(#refreshGradient)"
+      d="M24 4C14.0589 4 6 12.0589 6 22H2C2 10.7452 12.7452 0 24 0C35.2548 0 46 10.7452 46 22H42C42 12.0589 33.9411 4 24 4Z"
+      opacity="0.6">
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        from="0 24 24"
+        to="360 24 24"
+        dur="2s"
+        repeatCount="indefinite"/>
+    </path>
+    <path
+      fill="url(#refreshGradient)"
+      d="M24 44C33.9411 44 42 35.9411 42 26H46C46 35.2548 35.2548 46 24 46C12.7452 46 2 35.2548 2 26H6C6 35.9411 14.0589 44 24 44Z"
+      opacity="0.6">
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        from="360 24 24"
+        to="0 24 24"
+        dur="2s"
+        repeatCount="indefinite"/>
+    </path>
+  </g>
+  
+  <!-- Central Refresh Icon -->
+  <circle cx="24" cy="24" r="12" fill="url(#refreshGradient)"/>
+  <path
+    d="M24 16V12M24 36V32M16 24H12M36 24H32"
+    stroke="#FFFFFF"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"/>
 </svg>
