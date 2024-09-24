@@ -1,0 +1,21 @@
+body {
+    width: 300px;
+    font-family: Arial, sans-serif;
+}
+
+h1 {
+    text-align: center;
+}
+
+#tabList {
+    margin-top: 10px;
+}
+
+#tabList div {
+    padding: 5px;
+    border-bottom: 1px solid #ccc;
+}
+
+#tabList div:last-child {
+    border-bottom: none;
+}

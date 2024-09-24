@@ -1,0 +1,14 @@
+body {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+}
+
+h1 {
+    text-align: center;
+}
+
+#options {
+    margin-top: 20px;
+}
