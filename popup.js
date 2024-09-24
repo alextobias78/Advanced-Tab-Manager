@@ -1,76 +1,61 @@
 // popup.js
 
 document.addEventListener('DOMContentLoaded', () => {
-    const app = document.getElementById('app');
-    const groupsContainer = document.getElementById('groups-container');
-    const refreshBtn = document.getElementById('refresh-btn');
-  
-    // Refresh button functionality
-    refreshBtn.addEventListener('click', () => {
-      // Clear existing content before reloading
-      groupsContainer.innerHTML = '<p>Refreshing...</p>';
-      // Delay to allow the loading message to display
-      setTimeout(() => {
-        location.reload();
-      }, 100);
-    });
-  
-    // Send a message to the background script to get the tab groups
-    chrome.runtime.sendMessage({ action: 'getTabGroups' }, (response) => {
-      if (chrome.runtime.lastError) {
-        console.error('Error getting tab groups:', chrome.runtime.lastError);
-        groupsContainer.innerHTML = '<p>Error loading tab groups.</p>';
-        return;
-      }
-  
-      const tabGroups = response.tabGroups;
-  
+  const groupsContainer = document.getElementById('groups-container');
+  const refreshBtn = document.getElementById('refresh-btn');
+
+  refreshBtn.addEventListener('click', () => {
+    groupsContainer.innerHTML = '<p>Refreshing...</p>';
+    setTimeout(() => {
+      loadTabGroups();
+    }, 100);
+  });
+
+  function loadTabGroups() {
+    chrome.storage.local.get(['tabGroups'], (result) => {
+      const tabGroups = result.tabGroups;
+
       if (!tabGroups || Object.keys(tabGroups).length === 0) {
         groupsContainer.innerHTML = '<p>No tabs open.</p>';
         return;
       }
-  
-      // Clear the groups container
+
       groupsContainer.innerHTML = '';
-  
+
       for (const groupName in tabGroups) {
         const group = tabGroups[groupName];
-  
-        // Create a group card
+
         const groupCard = document.createElement('div');
         groupCard.className = 'group-card';
-  
-        // Group header
+
         const groupHeader = document.createElement('div');
         groupHeader.className = 'group-header';
-  
+
         const groupTitle = document.createElement('h2');
         groupTitle.textContent = groupName;
-  
+
         const groupCount = document.createElement('span');
         groupCount.textContent = `${group.tabs.length} tab(s)`;
-  
+
         groupHeader.appendChild(groupTitle);
         groupHeader.appendChild(groupCount);
-  
-        // Tab list
+
         const tabList = document.createElement('ul');
         tabList.className = 'tab-list';
-  
+
         group.tabs.forEach((tab) => {
           const listItem = document.createElement('li');
           listItem.className = 'tab-item';
-  
+
           const tabLink = document.createElement('a');
           tabLink.href = '#';
           tabLink.textContent = tab.title || 'Untitled';
           tabLink.title = tab.url;
-          tabLink.addEventListener('click', () => {
-            // Activate the tab when clicked
+          tabLink.addEventListener('click', (e) => {
+            e.preventDefault();
             chrome.tabs.update(tab.id, { active: true });
           });
-  
-          // Favicon
+
           const favicon = document.createElement('img');
           favicon.src = tab.favIconUrl || 'icons/default_favicon.png';
           favicon.alt = '';
@@ -78,15 +63,36 @@ document.addEventListener('DOMContentLoaded', () => {
           favicon.onerror = () => {
             favicon.src = 'icons/default_favicon.png';
           };
-  
+
+          const closeBtn = document.createElement('button');
+          closeBtn.className = 'close-btn';
+          closeBtn.title = 'Close Tab';
+          closeBtn.innerText = '×';
+          closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            chrome.tabs.remove(tab.id, () => {
+              listItem.remove();
+            });
+          });
+
           listItem.appendChild(favicon);
           listItem.appendChild(tabLink);
+          listItem.appendChild(closeBtn);
           tabList.appendChild(listItem);
         });
-  
+
         groupCard.appendChild(groupHeader);
         groupCard.appendChild(tabList);
         groupsContainer.appendChild(groupCard);
       }
     });
+  }
+
+  loadTabGroups();
+
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === 'local' && changes.tabGroups) {
+      loadTabGroups();
+    }
   });
+});
