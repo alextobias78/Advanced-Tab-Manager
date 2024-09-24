@@ -3,6 +3,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   const groupsContainer = document.getElementById('groups-container');
   const refreshBtn = document.getElementById('refresh-btn');
+  const optionsBtn = document.getElementById('options-btn');
 
   // Preload default favicon
   const defaultFavicon = new Image();
@@ -17,6 +18,13 @@ document.addEventListener('DOMContentLoaded', () => {
       loadTabGroups();
     }, 100);
   });
+
+  // Add event listener for the options button
+  optionsBtn.addEventListener('click', openOptionsPage);
+
+  function openOptionsPage() {
+    chrome.runtime.openOptionsPage();
+  }
 
   function loadTabGroups() {
     chrome.runtime.sendMessage({ action: 'getTabGroups' }, (response) => {
