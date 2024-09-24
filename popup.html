@@ -1,26 +1,26 @@
-<!-- options.html -->
+<!-- popup.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Tab Manager Options</title>
-  <link rel="stylesheet" href="styles/options.css">
+  <title>Tab Manager</title>
+  <link rel="stylesheet" href="styles/popup.css">
 </head>
 <body>
-  <h1>Advanced Tab Management Tool Settings</h1>
-  <form id="settings-form">
-    <label>
-      <input type="checkbox" name="enableGrouping" checked>
-      Enable Tab Grouping
-    </label>
-    <br>
-    <label>
-      <input type="checkbox" name="enableUrgency" checked>
-      Enable Urgency Marking
-    </label>
-    <br>
-    <button type="submit">Save Settings</button>
-  </form>
-  <script src="options.js"></script>
+  <div id="app">
+    <!-- Header -->
+    <header>
+      <h1>Tab Manager</h1>
+      <button id="refresh-btn" title="Refresh Tab Groups">
+        <img src="icons/refresh.svg" alt="Refresh">
+      </button>
+    </header>
+
+    <!-- Tab Groups Container -->
+    <div id="groups-container">
+      <!-- Grouped tabs will be dynamically inserted here -->
+    </div>
+  </div>
+  <script src="popup.js"></script>
 </body>
 </html>
