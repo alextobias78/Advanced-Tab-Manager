@@ -4,6 +4,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const groupsContainer = document.getElementById('groups-container');
   const refreshBtn = document.getElementById('refresh-btn');
 
+  // Preload default favicon
+  const defaultFavicon = new Image();
+  defaultFavicon.src = 'icons/default_favicon.png';
+
+  // Preload loading favicon SVG
+  const loadingFavicon = 'icons/loading_favicon.svg';
+
   refreshBtn.addEventListener('click', () => {
     groupsContainer.innerHTML = '<p>Refreshing...</p>';
     setTimeout(() => {
@@ -12,8 +19,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function loadTabGroups() {
-    chrome.storage.local.get(['tabGroups'], (result) => {
-      const tabGroups = result.tabGroups;
+    chrome.runtime.sendMessage({ action: 'getTabGroups' }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.error('Error getting tab groups:', chrome.runtime.lastError);
+        groupsContainer.innerHTML = '<p>Error loading tab groups.</p>';
+        return;
+      }
+
+      const tabGroups = response.tabGroups;
 
       if (!tabGroups || Object.keys(tabGroups).length === 0) {
         groupsContainer.innerHTML = '<p>No tabs open.</p>';
@@ -24,77 +37,123 @@ document.addEventListener('DOMContentLoaded', () => {
 
       for (const groupName in tabGroups) {
         const group = tabGroups[groupName];
-
-        const groupCard = document.createElement('div');
-        groupCard.className = 'group-card';
-
-        const groupHeader = document.createElement('div');
-        groupHeader.className = 'group-header';
-
-        const groupTitle = document.createElement('h2');
-        groupTitle.textContent = groupName;
-
-        const groupCount = document.createElement('span');
-        groupCount.textContent = `${group.tabs.length} tab(s)`;
-
-        groupHeader.appendChild(groupTitle);
-        groupHeader.appendChild(groupCount);
-
-        const tabList = document.createElement('ul');
-        tabList.className = 'tab-list';
-
-        group.tabs.forEach((tab) => {
-          const listItem = document.createElement('li');
-          listItem.className = 'tab-item';
-
-          const tabLink = document.createElement('a');
-          tabLink.href = '#';
-          tabLink.textContent = tab.title || 'Untitled';
-          tabLink.title = tab.url;
-          tabLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            chrome.tabs.update(tab.id, { active: true });
-          });
-
-          // Favicon
-          const favicon = document.createElement('img');
-          const url = new URL(tab.url);
-          const faviconUrl = 'https://www.google.com/s2/favicons?domain=' + encodeURIComponent(url.hostname);
-          favicon.src = faviconUrl;
-          favicon.alt = '';
-          favicon.className = 'favicon';
-          favicon.onerror = () => {
-            favicon.src = 'icons/default_favicon.png';
-          };
-
-          const closeBtn = document.createElement('button');
-          closeBtn.className = 'close-btn';
-          closeBtn.title = 'Close Tab';
-          closeBtn.innerText = '×';
-          closeBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            chrome.tabs.remove(tab.id, () => {
-              listItem.remove();
-            });
-          });
-
-          listItem.appendChild(favicon);
-          listItem.appendChild(tabLink);
-          listItem.appendChild(closeBtn);
-          tabList.appendChild(listItem);
-        });
-
-        groupCard.appendChild(groupHeader);
-        groupCard.appendChild(tabList);
-        groupsContainer.appendChild(groupCard);
+        createGroupCard(groupName, group);
       }
     });
   }
 
+  function createGroupCard(groupName, group) {
+    const groupCard = document.createElement('div');
+    groupCard.className = 'group-card';
+    groupCard.dataset.groupName = groupName;
+
+    const groupHeader = document.createElement('div');
+    groupHeader.className = 'group-header';
+
+    const groupTitle = document.createElement('h2');
+    groupTitle.textContent = groupName;
+
+    const groupCount = document.createElement('span');
+    groupCount.className = 'group-count';
+    groupCount.textContent = `${group.tabs.length} tab(s)`;
+
+    groupHeader.appendChild(groupTitle);
+    groupHeader.appendChild(groupCount);
+
+    const tabList = document.createElement('ul');
+    tabList.className = 'tab-list';
+
+    group.tabs.forEach((tab) => {
+      const listItem = createTabListItem(tab, groupName);
+      tabList.appendChild(listItem);
+    });
+
+    groupCard.appendChild(groupHeader);
+    groupCard.appendChild(tabList);
+    groupsContainer.appendChild(groupCard);
+  }
+
+  function createTabListItem(tab, groupName) {
+    const listItem = document.createElement('li');
+    listItem.className = 'tab-item';
+    listItem.dataset.tabId = tab.id;
+
+    const tabLink = document.createElement('a');
+    tabLink.href = '#';
+    tabLink.textContent = tab.title || 'Untitled';
+    tabLink.title = tab.url;
+    tabLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      chrome.tabs.update(tab.id, { active: true });
+    });
+
+    // Favicon
+    const favicon = document.createElement('img');
+    favicon.alt = '';
+    favicon.className = 'favicon';
+    favicon.src = loadingFavicon; // Use the loading SVG initially
+
+    // Function to set default favicon
+    const setDefaultFavicon = () => {
+      favicon.src = defaultFavicon.src;
+    };
+
+    // Try to load the tab's favicon
+    if (tab.favIconUrl) {
+      const tempImage = new Image();
+      tempImage.onload = () => {
+        favicon.src = tab.favIconUrl;
+      };
+      tempImage.onerror = setDefaultFavicon;
+      tempImage.src = tab.favIconUrl;
+    } else {
+      setDefaultFavicon();
+    }
+
+    // Close Button
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'close-btn';
+    closeBtn.title = 'Close Tab';
+    closeBtn.innerText = '×';
+    closeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      chrome.tabs.remove(tab.id, () => {
+        listItem.remove();
+        updateGroupAfterTabRemoval(groupName);
+      });
+    });
+
+    listItem.appendChild(favicon);
+    listItem.appendChild(tabLink);
+    listItem.appendChild(closeBtn);
+
+    return listItem;
+  }
+
+  function updateGroupAfterTabRemoval(groupName) {
+    const groupCard = document.querySelector(`.group-card[data-group-name="${groupName}"]`);
+    if (!groupCard) return;
+
+    const tabList = groupCard.querySelector('.tab-list');
+    const groupCount = groupCard.querySelector('.group-count');
+    const remainingTabs = tabList.querySelectorAll('.tab-item');
+
+    groupCount.textContent = `${remainingTabs.length} tab(s)`;
+
+    if (remainingTabs.length === 0) {
+      groupCard.remove();
+    }
+
+    if (document.querySelectorAll('.group-card').length === 0) {
+      groupsContainer.innerHTML = '<p>No tabs open.</p>';
+    }
+  }
+
   loadTabGroups();
 
-  chrome.storage.onChanged.addListener((changes, areaName) => {
-    if (areaName === 'local' && changes.tabGroups) {
+  // Listen for tab changes in real-time
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === 'tabChanged') {
       loadTabGroups();
     }
   });

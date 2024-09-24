@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <style>
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .spinner {
+      animation: spin 1s linear infinite;
+      transform-origin: center;
+    }
+  </style>
+  <circle class="spinner" cx="8" cy="8" r="7" fill="none" stroke="#4285f4" stroke-width="2" />
+</svg>

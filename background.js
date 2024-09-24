@@ -98,9 +98,7 @@ function regroupTabs() {
     assignTabToGroup(tab);
   }
 
-  chrome.storage.local.set({ tabGroups }, () => {
-    console.log('tabGroups updated in storage.');
-  });
+  console.log('tabGroups updated:', tabGroups);
 }
 
 // Function to initialize tabs and group them
@@ -136,4 +134,11 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 // Log when the extension is installed or updated
 chrome.runtime.onInstalled.addListener(() => {
   console.log('Advanced Tab Management Tool installed successfully.');
+});
+
+// Listen for messages from other parts of the extension
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'getTabGroups') {
+    sendResponse({ tabGroups });
+  }
 });
