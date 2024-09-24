@@ -56,8 +56,11 @@ document.addEventListener('DOMContentLoaded', () => {
             chrome.tabs.update(tab.id, { active: true });
           });
 
+          // Favicon
           const favicon = document.createElement('img');
-          favicon.src = tab.favIconUrl || 'icons/default_favicon.png';
+          const url = new URL(tab.url);
+          const faviconUrl = 'https://www.google.com/s2/favicons?domain=' + encodeURIComponent(url.hostname);
+          favicon.src = faviconUrl;
           favicon.alt = '';
           favicon.className = 'favicon';
           favicon.onerror = () => {
