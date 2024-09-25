@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   refreshBtn.addEventListener('click', () => {
     showRefreshing();
-    chrome.runtime.sendMessage({ action: 'getTabGroups' }, handleTabGroups);
+    loadTabGroups();
   });
 
   // Add event listener for the options button
@@ -33,27 +33,29 @@ document.addEventListener('DOMContentLoaded', () => {
     refreshBtn.disabled = false;
   }
 
-  function handleTabGroups(response) {
-    hideRefreshing();
-    if (chrome.runtime.lastError) {
-      console.error('Error getting tab groups:', chrome.runtime.lastError);
-      groupsContainer.innerHTML = '<p>Error loading tab groups. Please try again.</p>';
-      return;
-    }
+  function loadTabGroups() {
+    chrome.storage.local.get(['tabGroups'], (result) => {
+      hideRefreshing();
+      if (chrome.runtime.lastError) {
+        console.error('Error getting tab groups:', chrome.runtime.lastError);
+        groupsContainer.innerHTML = '<p>Error loading tab groups. Please try again.</p>';
+        return;
+      }
 
-    const tabGroups = response.tabGroups;
+      const tabGroups = result.tabGroups;
 
-    if (!tabGroups || Object.keys(tabGroups).length === 0) {
-      groupsContainer.innerHTML = '<p>No tabs open.</p>';
-      return;
-    }
+      if (!tabGroups || Object.keys(tabGroups).length === 0) {
+        groupsContainer.innerHTML = '<p>No tabs open.</p>';
+        return;
+      }
 
-    groupsContainer.innerHTML = '';
+      groupsContainer.innerHTML = '';
 
-    for (const groupName in tabGroups) {
-      const group = tabGroups[groupName];
-      createGroupCard(groupName, group);
-    }
+      for (const groupName in tabGroups) {
+        const group = tabGroups[groupName];
+        createGroupCard(groupName, group);
+      }
+    });
   }
 
   function createGroupCard(groupName, group) {
@@ -165,12 +167,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initial load of tab groups
   showRefreshing();
-  chrome.runtime.sendMessage({ action: 'getTabGroups' }, handleTabGroups);
+  loadTabGroups();
 
-  // Listen for tab changes in real-time
-  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action === 'tabGroupsUpdated') {
-      handleTabGroups({ tabGroups: message.tabGroups });
+  // Listen for changes in chrome.storage.local
+  chrome.storage.onChanged.addListener((changes, namespace) => {
+    if (namespace === 'local' && changes.tabGroups) {
+      loadTabGroups();
     }
   });
 });
