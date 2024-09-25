@@ -13,10 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const loadingFavicon = 'icons/loading_favicon.svg';
 
   refreshBtn.addEventListener('click', () => {
-    groupsContainer.innerHTML = '<p>Refreshing...</p>';
-    setTimeout(() => {
-      loadTabGroups();
-    }, 100);
+    showRefreshing();
+    chrome.runtime.sendMessage({ action: 'getTabGroups' }, handleTabGroups);
   });
 
   // Add event listener for the options button
@@ -26,28 +24,36 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.runtime.openOptionsPage();
   }
 
-  function loadTabGroups() {
-    chrome.runtime.sendMessage({ action: 'getTabGroups' }, (response) => {
-      if (chrome.runtime.lastError) {
-        console.error('Error getting tab groups:', chrome.runtime.lastError);
-        groupsContainer.innerHTML = '<p>Error loading tab groups.</p>';
-        return;
-      }
+  function showRefreshing() {
+    groupsContainer.innerHTML = '<p>Refreshing...</p>';
+    refreshBtn.disabled = true;
+  }
 
-      const tabGroups = response.tabGroups;
+  function hideRefreshing() {
+    refreshBtn.disabled = false;
+  }
 
-      if (!tabGroups || Object.keys(tabGroups).length === 0) {
-        groupsContainer.innerHTML = '<p>No tabs open.</p>';
-        return;
-      }
+  function handleTabGroups(response) {
+    hideRefreshing();
+    if (chrome.runtime.lastError) {
+      console.error('Error getting tab groups:', chrome.runtime.lastError);
+      groupsContainer.innerHTML = '<p>Error loading tab groups. Please try again.</p>';
+      return;
+    }
 
-      groupsContainer.innerHTML = '';
+    const tabGroups = response.tabGroups;
 
-      for (const groupName in tabGroups) {
-        const group = tabGroups[groupName];
-        createGroupCard(groupName, group);
-      }
-    });
+    if (!tabGroups || Object.keys(tabGroups).length === 0) {
+      groupsContainer.innerHTML = '<p>No tabs open.</p>';
+      return;
+    }
+
+    groupsContainer.innerHTML = '';
+
+    for (const groupName in tabGroups) {
+      const group = tabGroups[groupName];
+      createGroupCard(groupName, group);
+    }
   }
 
   function createGroupCard(groupName, group) {
@@ -157,12 +163,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  loadTabGroups();
+  // Initial load of tab groups
+  showRefreshing();
+  chrome.runtime.sendMessage({ action: 'getTabGroups' }, handleTabGroups);
 
   // Listen for tab changes in real-time
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action === 'tabChanged') {
-      loadTabGroups();
+    if (message.action === 'tabGroupsUpdated') {
+      handleTabGroups({ tabGroups: message.tabGroups });
     }
   });
 });

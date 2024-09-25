@@ -99,6 +99,7 @@ function regroupTabs() {
   }
 
   console.log('tabGroups updated:', tabGroups);
+  notifyPopup();
 }
 
 // Function to initialize tabs and group them
@@ -142,3 +143,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     sendResponse({ tabGroups });
   }
 });
+
+// Function to notify popup of changes
+function notifyPopup() {
+  chrome.runtime.sendMessage({ action: 'tabGroupsUpdated', tabGroups: tabGroups });
+}
