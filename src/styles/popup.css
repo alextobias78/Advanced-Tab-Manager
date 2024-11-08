@@ -1,15 +1,18 @@
 /* src/styles/popup.css */
 :root {
   --primary-color: #7289DA;
+  --primary-hover: #5B73C7;
   --secondary-color: #43B581;
-  --background-color: #2C2F33;
-  --surface-color: #23272A;
+  --background-color: #1A1B1E;
+  --surface-color: #2C2F33;
   --text-color: #FFFFFF;
   --text-secondary: #99AAB5;
   --border-color: #40444B;
   --hover-color: #34383C;
   --danger-color: #F04747;
   --shadow-color: rgba(0, 0, 0, 0.3);
+  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body {
@@ -39,6 +42,9 @@ h1 {
   color: var(--primary-color);
   font-weight: 600;
   letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .header-actions {
@@ -53,13 +59,16 @@ h1 {
   cursor: pointer;
   border-radius: 8px;
   color: var(--text-color);
-  transition: all 0.2s ease;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .icon-button:hover {
   background: var(--hover-color);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px var(--shadow-color);
+  box-shadow: var(--card-shadow);
 }
 
 .search-bar {
@@ -69,19 +78,19 @@ h1 {
 #searchInput {
   width: 100%;
   padding: 12px;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
   box-sizing: border-box;
   background: var(--surface-color);
   color: var(--text-color);
   font-size: 14px;
-  transition: all 0.2s ease;
+  transition: var(--transition);
 }
 
 #searchInput:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(114, 137, 218, 0.2);
+  box-shadow: 0 0 0 3px rgba(114, 137, 218, 0.2);
 }
 
 #searchInput::placeholder {
@@ -92,20 +101,22 @@ h1 {
   max-height: 500px;
   overflow-y: auto;
   padding-right: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) var(--surface-color);
 }
 
 .groups-container::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 .groups-container::-webkit-scrollbar-track {
   background: var(--surface-color);
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 .groups-container::-webkit-scrollbar-thumb {
   background: var(--border-color);
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 .groups-container::-webkit-scrollbar-thumb:hover {
@@ -118,12 +129,13 @@ h1 {
   border-radius: 12px;
   background: var(--surface-color);
   overflow: hidden;
-  transition: all 0.2s ease;
+  transition: var(--transition);
+  box-shadow: var(--card-shadow);
 }
 
 .group:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px var(--shadow-color);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
 .group-header {
@@ -138,14 +150,16 @@ h1 {
 .group-name {
   font-weight: 600;
   color: var(--primary-color);
+  font-size: 14px;
 }
 
 .tab-count {
-  background: var(--surface-color);
-  padding: 4px 8px;
+  background: var(--background-color);
+  padding: 4px 10px;
   border-radius: 12px;
-  font-size: 0.8em;
+  font-size: 12px;
   color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .tab-list {
@@ -158,8 +172,9 @@ h1 {
   padding: 8px 12px;
   cursor: pointer;
   border-radius: 8px;
-  transition: all 0.2s ease;
+  transition: var(--transition);
   margin: 4px 0;
+  background: var(--surface-color);
 }
 
 .tab-item:hover {
@@ -171,6 +186,9 @@ h1 {
   height: 16px;
   margin-right: 12px;
   border-radius: 4px;
+  object-fit: contain;
+  background: var(--background-color);
+  padding: 2px;
 }
 
 .tab-title {
@@ -190,8 +208,11 @@ h1 {
   padding: 4px 8px;
   border-radius: 4px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: var(--transition);
   font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .tab-item:hover .close-tab {
@@ -217,8 +238,11 @@ button {
   border-radius: 8px;
   cursor: pointer;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: var(--transition);
   font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 #newGroupBtn {
@@ -227,9 +251,9 @@ button {
 }
 
 #newGroupBtn:hover {
-  background: #5B73C7;
+  background: var(--primary-hover);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px var(--shadow-color);
+  box-shadow: var(--card-shadow);
 }
 
 #cleanupBtn {
@@ -241,10 +265,9 @@ button {
 #cleanupBtn:hover {
   background: var(--hover-color);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px var(--shadow-color);
+  box-shadow: var(--card-shadow);
 }
 
-/* Animation classes */
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -257,9 +280,10 @@ button {
 }
 
 .group {
-  animation: slideIn 0.3s ease;
+  animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .tab-item {
-  animation: slideIn 0.2s ease;
+  animation: slideIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
