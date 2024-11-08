@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tab Manager</title>
+  <link rel="stylesheet" href="../styles/popup.css">
+  <meta charset="UTF-8">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Tab Manager</h1>
+      <div class="header-actions">
+        <button id="refreshBtn" class="icon-button" title="Refresh Groups">
+          <img src="../icons/refresh.svg" alt="Refresh">
+        </button>
+        <button id="settingsBtn" class="icon-button" title="Settings">⚙️</button>
+      </div>
+    </header>
+    
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search tabs...">
+    </div>
+
+    <div class="groups-container" id="groupsContainer">
+      <!-- Groups will be dynamically inserted here -->
+    </div>
+
+    <div class="actions-bar">
+      <button id="newGroupBtn">New Group</button>
+      <button id="cleanupBtn">Cleanup Inactive</button>
+    </div>
+  </div>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
