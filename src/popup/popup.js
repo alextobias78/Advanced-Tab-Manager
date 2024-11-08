@@ -1,5 +1,6 @@
 // src/popup/popup.js
 import { settingsManager } from '../utils/settings.js';
+import { FaviconManager } from '../utils/favicon.js';
 
 class PopupManager {
   constructor() {
@@ -18,6 +19,7 @@ class PopupManager {
     this.newGroupBtn = document.getElementById('newGroupBtn');
     this.cleanupBtn = document.getElementById('cleanupBtn');
   }
+
 
   attachEventListeners() {
     this.refreshBtn.addEventListener('click', () => this.loadGroups());
@@ -78,15 +80,18 @@ class PopupManager {
     return groupDiv;
   }
 
-  createTabElement(tab, groupName) {
+  async createTabElement(tab, groupName) {
     const tabDiv = document.createElement('div');
     tabDiv.className = 'tab-item';
     tabDiv.setAttribute('data-tab-id', tab.id);
     
     const favicon = document.createElement('img');
     favicon.className = 'tab-favicon';
-    favicon.src = tab.favIconUrl || '../icons/default_favicon.png';
-    favicon.onerror = () => favicon.src = '../icons/default_favicon.png';
+    // Use FaviconManager to get the best available favicon
+    favicon.src = await FaviconManager.getFaviconUrl(tab.url);
+    favicon.onerror = async () => {
+      favicon.src = '../icons/default_favicon.png';
+    };
     
     const title = document.createElement('span');
     title.className = 'tab-title';
@@ -161,3 +166,4 @@ class PopupManager {
 document.addEventListener('DOMContentLoaded', () => {
   new PopupManager();
 });
+
